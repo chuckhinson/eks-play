@@ -54,8 +54,8 @@
           "SubnetIds": [
             "subnet-0f3caa82c79797550",
             "subnet-0bbb854081b88084e",
-            "subnet-00285346cb10df9d1",
-            "subnet-0b43378c61d76394a"
+            "subnet-0b43378c61d76394a",
+            "subnet-00285346cb10df9d1"
           ]
         },
         "RoleArn": {
@@ -333,8 +333,8 @@
         "Fn::Join": [
           ",",
           [
-            "subnet-00285346cb10df9d1",
-            "subnet-0b43378c61d76394a"
+            "subnet-0b43378c61d76394a",
+            "subnet-00285346cb10df9d1"
           ]
         ]
       },
