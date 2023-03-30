@@ -59,6 +59,18 @@ module "cluster" {
   ]
 }
 
+module "nodes" {
+  source = "./modules/nodes"
+
+  project_name = var.project_name
+  subnet_ids = [
+    module.vpc.private_subnet1,
+    module.vpc.private_subnet2
+  ]
+  cluster_security_group_id = module.cluster.cluster_security_group_id
+
+}
+
 output "project_name" {
   value = var.project_name
 }

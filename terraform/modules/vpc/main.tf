@@ -118,6 +118,8 @@ resource "aws_subnet" "private1" {
   tags = {
     Name = "${var.project_name}-private1"
     "kubernetes.io/role/internal-elb" = "1"
+    # # Terraform nodegroup docs say the following tag is necessary, but eksctl didnt tag the subnets with it
+    # "kubernetes.io/cluster/${var.project_name}" = ""
   }
 }
 
@@ -129,6 +131,8 @@ resource "aws_subnet" "private2" {
   tags = {
     Name = "${var.project_name}-private2"
     "kubernetes.io/role/internal-elb" = "1"
+    # # Terraform nodegroup docs say the following tag is necessary, but eksctl didnt tag the subnets with it
+    # "kubernetes.io/cluster/${var.project_name}" = ""
   }
 }
 
