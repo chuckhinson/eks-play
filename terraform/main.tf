@@ -38,6 +38,10 @@ module "cluster" {
   ]
 }
 
+data "aws_instance" "jumpbox" {
+  instance_id = module.vpc.jumpbox_instance_id
+}
+
 module "nodes" {
   source = "./modules/nodes"
 
@@ -47,5 +51,6 @@ module "nodes" {
     module.vpc.private_subnet2
   ]
   cluster_security_group_id = module.cluster.cluster_security_group_id
-
+  remote_ssh_cdir_block = "${data.aws_instance.jumpbox.private_ip}/32"
+  node_keypair_name = module.vpc.ssh_keypair_name
 }

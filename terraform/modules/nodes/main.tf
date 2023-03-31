@@ -93,7 +93,8 @@ resource "aws_launch_template" "LaunchTemplate" {
     http_put_response_hop_limit = 2
     http_tokens = "optional"
   }
-  vpc_security_group_ids = [var.cluster_security_group_id]
+  key_name = var.node_keypair_name
+  vpc_security_group_ids = [var.cluster_security_group_id, aws_security_group.remote_access.id]
   tag_specifications {
     resource_type = "instance"
     tags = {
@@ -118,4 +119,29 @@ resource "aws_launch_template" "LaunchTemplate" {
       "alpha.eksctl.io/nodegroup-type" = "managed"
     }
   }
+}
+
+
+data "aws_subnet" "public_subnet1" {
+  id = var.subnet_ids[0]
+}
+
+resource "aws_security_group" "remote_access" {
+  name = "${var.project_name}-remote-access"
+  description = "allow ssh from remote CIDR block"
+  vpc_id = data.aws_subnet.public_subnet1.vpc_id
+
+  tags = {
+    Name = "${var.project_name}-remote_access"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ssh_from_remote_cidr_block" {
+  security_group_id = aws_security_group.remote_access.id
+  description = "Allow ssh access from remote cidr block"
+
+  from_port   = 22
+  ip_protocol = "tcp"
+  to_port     = 22
+  cidr_ipv4 = var.remote_ssh_cdir_block
 }

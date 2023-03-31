@@ -32,5 +32,5 @@ output "ssh_private_key" {
 }
 
 output "jumpbox_public_ip" {
-  value = module.vpc.jumpbox_public_ip
+  value = data.aws_instance.jumpbox.public_ip
 }
