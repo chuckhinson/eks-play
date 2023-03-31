@@ -19,4 +19,11 @@ output "private_subnet2" {
   value = aws_subnet.private2.id
 }
 
+output "ssh_private_key" {
+  value = tls_private_key.ssh_key.private_key_pem
+  sensitive = true
+}
 
+output "jumpbox_public_ip" {
+  value = aws_instance.jumpbox.public_ip
+}

@@ -38,12 +38,16 @@ variable "vpc_cidr_block" {
   default = "10.2.0.0/16"
 }
 
+variable "remote_access_cidr_block" {
+  description = "CIDR block for remote access to jumpbox"
+}
 
 module "vpc" {
   source = "./modules/vpc"
 
   project_name = var.project_name
   vpc_cidr_block = var.vpc_cidr_block
+  remote_access_cidr_block = var.remote_access_cidr_block
 }
 
 module "cluster" {
@@ -99,4 +103,11 @@ output "private_subnet2" {
   value = module.vpc.private_subnet2
 }
 
+output "ssh_private_key" {
+  value = module.vpc.ssh_private_key
+  sensitive = true
+}
 
+output "jumpbox_public_ip" {
+  value = module.vpc.jumpbox_public_ip
+}

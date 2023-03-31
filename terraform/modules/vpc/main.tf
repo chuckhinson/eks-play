@@ -4,7 +4,21 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
+    tls = {
+      source = "hashicorp/tls"
+    }
   }
+}
+
+
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "ec2_keypair" {
+  key_name   = var.project_name
+  public_key = tls_private_key.ssh_key.public_key_openssh
 }
 
 resource "aws_vpc" "main" {
@@ -136,3 +150,81 @@ resource "aws_subnet" "private2" {
   }
 }
 
+resource "aws_security_group" "jumpbox" {
+  name        = "${var.project_name}-remote"
+  description = "Allow remote access to jumpbox"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description      = "ssh from mgmt server"
+    protocol         = "tcp"
+    from_port        = "22"
+    to_port          = "22"
+    cidr_blocks      = [var.remote_access_cidr_block]
+  }
+  # AWS normally provides a default egress rule, but terraform
+  # deletes it by default, so we need to add it here to keep it
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+
+  tags = {
+    Name = "${var.project_name}-remote"
+  }
+}
+
+data "aws_ami" "ubuntu_jammy" {
+  most_recent      = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name = "architecture"
+    values = ["x86_64"]
+  }
+
+  # amazon commercial = 099720109477
+  # amazon gov cloud = 513442679011
+  owners = ["513442679011"]  # amazon
+}
+
+resource "aws_instance" "jumpbox" {
+  ami           = data.aws_ami.ubuntu_jammy.id
+  associate_public_ip_address = true
+  ebs_block_device {
+    device_name = "/dev/sda1"
+    volume_size = "50"
+    tags = {
+      Name = "${var.project_name}-jumpbox"
+      Environment = var.project_name
+    }
+  }
+  instance_type = "t3.micro"
+  key_name = aws_key_pair.ec2_keypair.key_name
+  private_ip =  cidrhost(aws_subnet.public1.cidr_block,10)
+  source_dest_check = false
+  subnet_id = aws_subnet.public1.id
+  vpc_security_group_ids = [aws_security_group.jumpbox.id]
+
+  tags = {
+    Name = "${var.project_name}-jumpbox"
+  }
+}

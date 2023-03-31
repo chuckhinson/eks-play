@@ -6,3 +6,7 @@ variable "project_name" {
 variable "vpc_cidr_block" {
   default = "10.2.0.0/16"
 }
+
+variable "remote_access_cidr_block" {
+  description = "CIDR block for remote access to jumpbox"
+}
