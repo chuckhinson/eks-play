@@ -17,31 +17,6 @@ provider "aws" {
   }  
 }
 
-variable "project_name" {
-  nullable = false
-  description = "The cluster name - will be used in the names of all resources.  This must be the cluster name as provided to kubespray in order for the cloud-controller manager to work properly"
-}
-
-variable "aws_profile_name" {
-  nullable = false
-  description = "That name of the aws profile to be use when access AWS APIs"
-}
-
-variable "aws_region" {
-  # per https://github.com/hashicorp/terraform-provider-aws/issues/7750 the aws provider is not
-  # using the region defined in aws profile, so it will need to be specified
-  nullable = false
-  description = "The region to operate in"
-}
-
-variable "vpc_cidr_block" {
-  default = "10.2.0.0/16"
-}
-
-variable "remote_access_cidr_block" {
-  description = "CIDR block for remote access to jumpbox"
-}
-
 module "vpc" {
   source = "./modules/vpc"
 
@@ -73,41 +48,4 @@ module "nodes" {
   ]
   cluster_security_group_id = module.cluster.cluster_security_group_id
 
-}
-
-output "project_name" {
-  value = var.project_name
-}
-
-output "aws_profile_name" {
-  value = var.aws_profile_name
-}
-
-output "vpc_id" {
-  value = module.vpc.vpc_id
-}
-
-output "public_subnet1" {
-  value = module.vpc.public_subnet1
-}
-
-output "public_subnet2" {
-  value = module.vpc.public_subnet2
-}
-
-output "private_subnet1" {
-  value = module.vpc.private_subnet1
-}
-
-output "private_subnet2" {
-  value = module.vpc.private_subnet2
-}
-
-output "ssh_private_key" {
-  value = module.vpc.ssh_private_key
-  sensitive = true
-}
-
-output "jumpbox_public_ip" {
-  value = module.vpc.jumpbox_public_ip
 }
