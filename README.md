@@ -18,17 +18,21 @@ Still have lots of questions
  - It appears that the only way to tell eksctl to use an existing vpc is to give it the ids of subnets that already exist in that vpc.  This also means that eksctl expects all of the networking infrastructure to already be setup (igs, nat gateway route tables, subnets)
  - You can pass eksctl a config file which seems to allow more granular control of options (you can also generate a config file using the --dry-run flag)
  - What security groups are needed and what actually needs to be in each of them
- - Look into IAM Roles for Service account (requires and OIDC endpoint)
+ - Look into IAM Roles for Service account (requires an OIDC endpoint)
+    + is IRSA only available in EKS
  - What roles do we need to create and will we be able to create them or will we have to ask M2O
  - How do we want to do node groups (important for persistent storage that uses EBS)
- - Do we want/need to do customer AMI for our worker nodes (adds non-trivial complexity if we do)
+     + If pv created in 1 az, will node group spawn new node in same az to make sure pods that need that volume can get scheduled in the right az
+ - Do we want/need to do custom AMI for our worker nodes (adds non-trivial complexity if we do)
  - Need to understand better how to grant access to the cluster (kubectl) to IAM users
  	+ Look at ./kube/config and note the exec section under user for doing authentication
  - Need to understand better how ingress and elbs are handled
  - eksctl seems to create the worker nodes on the public subnet - not sure if there's a reason for that of if it just makes some things easier for getting started.
  - Need to understand better the private and public networking options
  	+ I think we want our workers on the private subnets and our elbs on the publc subnets
- 	
+ - Need to understand managed addons vs unmanaged and why they require IRSA and OIDC
+ - What (unmanaged) add-ons are deployed with a 'default' EKS cluster? 
+ - Do we need the cloud-controller-manager 	
 
 
 Resources:
