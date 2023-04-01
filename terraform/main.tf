@@ -25,6 +25,30 @@ module "vpc" {
   remote_access_cidr_block = var.remote_access_cidr_block
 }
 
+data "aws_instance" "jumpbox" {
+  instance_id = module.vpc.jumpbox_instance_id
+}
+
+resource "aws_security_group" "control_plane_private_access" {
+  name = "${var.project_name}-control_plane_private_access"
+  description = "All control plane to receive requests from jumpbox"
+  vpc_id = module.vpc.vpc_id
+
+  tags = {
+    Name = "${var.project_name}-control_plane_private_access"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ingress_jumpbox_to_private_endpoint" {
+  security_group_id = aws_security_group.control_plane_private_access.id
+  description = "Allow jumpbox to access private control plan endpoint"
+
+  from_port   = 443
+  ip_protocol = "tcp"
+  to_port     = 443
+  cidr_ipv4 = "${data.aws_instance.jumpbox.private_ip}/32"
+}
+
 module "cluster" {
   source = "./modules/cluster"
 
@@ -36,10 +60,7 @@ module "cluster" {
     module.vpc.private_subnet1,
     module.vpc.private_subnet2
   ]
-}
-
-data "aws_instance" "jumpbox" {
-  instance_id = module.vpc.jumpbox_instance_id
+  private_access_security_group_id = aws_security_group.control_plane_private_access.id
 }
 
 module "nodes" {

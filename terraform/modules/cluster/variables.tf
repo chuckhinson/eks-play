@@ -12,3 +12,8 @@ variable "subnet_ids" {
   type = list(string)
   description = "List of subnet ids for worker nodes"
 }
+
+variable "private_access_security_group_id" {
+  type = string
+  description = "Id of security group to be used by cluster to allow access to api endpoints"
+}
