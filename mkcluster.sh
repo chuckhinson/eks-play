@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Script to create cluster using eksctl.  Note this script is obsolete now that I've got 
+# everything setup in terraform.  I'm keeping this script for now since it'll make it easier
+# to do experiments with eksctl to see what kind of cloud formation in generates for certain
+# configurations
+
 terraform -chdir=./terraform apply
 
 AWS_PROFILE_NAME=$(terraform -chdir=./terraform output -json | jq -r '.aws_profile_name.value')
